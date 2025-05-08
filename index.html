@@ -2,118 +2,126 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Health Plan Browser</title>
+  <title>Available ACA Plans</title>
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600|Roboto+Slab:700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Open Sans', sans-serif;
-      background-color: #F5F5F5;
-      color: #333;
+      background-color: #f5f5f5;
       margin: 0;
-      padding: 0;
+      padding: 40px 0;
     }
     .container {
-      max-width: 800px;
-      margin: 50px auto;
+      max-width: 900px;
+      margin: auto;
       background-color: #fff;
       padding: 40px;
-      border-radius: 8px;
+      border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     h1 {
       font-family: 'Roboto Slab', serif;
       color: #003366;
       text-align: center;
-      margin-bottom: 30px;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-top: 5px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      width: 100%;
-      background-color: #FF6600;
-      color: white;
-      padding: 14px;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #e65c00;
+      margin-bottom: 40px;
     }
     .plan {
       border: 1px solid #ccc;
       padding: 20px;
-      margin-top: 20px;
-      border-radius: 4px;
-      background-color: #FAFAFA;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      background-color: #fafafa;
     }
     .plan h2 {
-      margin: 0 0 10px;
+      margin-top: 0;
       color: #003366;
     }
     .plan p {
-      margin: 5px 0;
+      margin: 6px 0;
+    }
+    .plan a {
+      display: inline-block;
+      margin-top: 10px;
+      background-color: #FF6600;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .plan a:hover {
+      background-color: #e65c00;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Explore Health Plans</h1>
-    <form id="quote-form">
-      <label for="zip">ZIP Code</label>
-      <input type="text" id="zip" required>
+    <h1>Available Health Plans</h1>
 
-      <button type="submit">Show Plans</button>
-    </form>
+    <div class="plan">
+      <h2>Blue Cross Silver PPO</h2>
+      <p><strong>Carrier:</strong> Blue Cross Blue Shield</p>
+      <p><strong>Metal Tier:</strong> Silver</p>
+      <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">Get Quote</a>
+    </div>
 
-    <div id="results"></div>
+    <div class="plan">
+      <h2>Anthem Bronze Saver</h2>
+      <p><strong>Carrier:</strong> Anthem</p>
+      <p><strong>Metal Tier:</strong> Bronze</p>
+      <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">Get Quote</a>
+    </div>
+
+    <div class="plan">
+      <h2>UnitedHealthcare Gold Advantage</h2>
+      <p><strong>Carrier:</strong> UnitedHealthcare</p>
+      <p><strong>Metal Tier:</strong> Gold</p>
+      <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">Get Quote</a>
+    </div>
+
+    <div class="plan">
+      <h2>Cigna Essential Silver</h2>
+      <p><strong>Carrier:</strong> Cigna</p>
+      <p><strong>Metal Tier:</strong> Silver</p>
+      <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">Get Quote</a>
+    </div>
+
+    <div class="plan">
+      <h2>Aetna Bronze Choice</h2>
+      <p><strong>Carrier:</strong> Aetna</p>
+      <p><strong>Metal Tier:</strong> Bronze</p>
+      <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">Get Quote</a>
+    </div>
+
+    <div class="plan">
+      <h2>Humana Value Silver</h2>
+      <p><strong>Carrier:</strong> Humana</p>
+      <p><strong>Metal Tier:</strong> Silver</p>
+      <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">Get Quote</a>
+    </div>
+
+    <div class="plan">
+      <h2>Ambetter Balanced Bronze</h2>
+      <p><strong>Carrier:</strong> Ambetter</p>
+      <p><strong>Metal Tier:</strong> Bronze</p>
+      <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">Get Quote</a>
+    </div>
+
+    <div class="plan">
+      <h2>Molina Marketplace Silver</h2>
+      <p><strong>Carrier:</strong> Molina</p>
+      <p><strong>Metal Tier:</strong> Silver</p>
+      <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">Get Quote</a>
+    </div>
+
+    <div class="plan">
+      <h2>Oscar Bronze Smart Plan</h2>
+      <p><strong>Carrier:</strong> Oscar</p>
+      <p><strong>Metal Tier:</strong> Bronze</p>
+      <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">Get Quote</a>
+    </div>
+
   </div>
-
-  <script>
-    document.getElementById('quote-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const zip = document.getElementById('zip').value;
-      const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = '<p>Loading plans...</p>';
-
-      try {
-        const res = await fetch(`https://marketplace.api.healthcare.gov/api/v1/plans/zip/${zip}/2024.json`);
-        const data = await res.json();
-        const plans = data.plans.slice(0, 10); // limit to 10
-
-        if (!plans.length) {
-          resultsDiv.innerHTML = `<p>No plans found for ZIP code ${zip}.</p>`;
-          return;
-        }
-
-        resultsDiv.innerHTML = '';
-        plans.forEach(plan => {
-          const div = document.createElement('div');
-          div.className = 'plan';
-          div.innerHTML = `
-            <h2>${plan.marketing_name}</h2>
-            <p><strong>Carrier:</strong> ${plan.issuer_name}</p>
-            <p><strong>Metal Tier:</strong> ${plan.metal_level}</p>
-          `;
-          resultsDiv.appendChild(div);
-        });
-      } catch (err) {
-        resultsDiv.innerHTML = '<p>Error loading plans. Try a different ZIP.</p>';
-        console.error(err);
-      }
-    });
-  </script>
 </body>
 </html>
+
