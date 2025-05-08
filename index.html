@@ -1,106 +1,175 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>ACA Quote Estimator</title>
+  <meta charset="UTF-8">
+  <title>Vantage Insurance Quote Estimator</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600|Roboto+Slab:700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; padding: 30px; max-width: 700px; margin: auto; }
-    label, input { display: block; margin: 10px 0; width: 100%; }
-    button { padding: 10px 20px; margin-top: 15px; background: #ffc107; border: none; cursor: pointer; }
-    .plan { border: 1px solid #ccc; padding: 15px; margin-top: 10px; }
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-color: #F5F5F5;
+      color: #333333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: #FFFFFF;
+      padding: 40px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    h1 {
+      font-family: 'Roboto Slab', serif;
+      color: #003366;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #CCCCCC;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #FF6600;
+      color: #FFFFFF;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #e65c00;
+    }
+    .results {
+      margin-top: 30px;
+    }
+    .plan {
+      border: 1px solid #CCCCCC;
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background-color: #FAFAFA;
+    }
+    .plan h2 {
+      margin-top: 0;
+      color: #003366;
+    }
+    .plan p {
+      margin: 5px 0;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Get Your Health Plan Estimate</h1>
+    <form id="quote-form">
+      <label for="zip">ZIP Code:</label>
+      <input type="text" id="zip" name="zip" required>
 
-<h2>Get ACA Health Plan Estimates</h2>
+      <label for="age">Age:</label>
+      <input type="number" id="age" name="age" required>
 
-<label>ZIP Code:
-  <input type="text" id="zip" value="33101">
-</label>
+      <label for="income">Estimated Yearly Income ($):</label>
+      <input type="number" id="income" name="income" required>
 
-<label>Age:
-  <input type="number" id="age" value="30" min="0">
-</label>
+      <label for="household">Household Size:</label>
+      <input type="number" id="household" name="household" required>
 
-<label>Estimated Yearly Income ($):
-  <input type="number" id="income" value="30000">
-</label>
+      <button type="submit">Get Estimate</button>
+    </form>
+    <div class="results" id="results"></div>
+  </div>
 
-<label>Household Size:
-  <input type="number" id="household" value="1" min="1">
-</label>
+  <script>
+    document.getElementById('quote-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const zip = document.getElementById('zip').value;
+      const age = parseInt(document.getElementById('age').value);
+      const income = parseInt(document.getElementById('income').value);
+      const household = parseInt(document.getElementById('household').value);
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<p>Loading...</p>';
 
-<button onclick="getQuote()">Get My Estimate</button>
+      try {
+        // Step 1: Get county info
+        const countyRes = await fetch(`https://marketplace.api.healthcare.gov/api/v1/counties.json?zip_code=${zip}`);
+        const countyData = await countyRes.json();
+        const county = countyData.counties[0];
 
-<div id="results"></div>
+        if (!county) {
+          resultsDiv.innerHTML = '<p>Invalid ZIP code.</p>';
+          return;
+        }
 
-<script>
-async function getQuote() {
-  const zip = document.getElementById('zip').value;
-  const age = parseInt(document.getElementById('age').value);
-  const income = parseInt(document.getElementById('income').value);
-  const household = parseInt(document.getElementById('household').value);
+        const state = county.state;
+        const fips = county.fips_code;
 
-  document.getElementById('results').innerHTML = "Loading...";
+        // Step 2: Get APTC estimate
+        const aptcRes = await fetch('https://marketplace.api.healthcare.gov/api/v1/aptc-estimate.json', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            household: {
+              state: state,
+              zip_code: zip,
+              county_fips_code: fips,
+              income: income,
+              members: [
+                { age: age, relationship: "self" }
+              ]
+            }
+          })
+        });
 
-  // Step 1: Get county info
-  const countyRes = await fetch(`https://marketplace.api.healthcare.gov/api/v1/counties.json?zip_code=${zip}`);
-  const countyData = await countyRes.json();
-  const county = countyData.counties[0];
+        const aptcData = await aptcRes.json();
+        const aptc = aptcData.aptc_amount || 0;
 
-  if (!county) {
-    document.getElementById('results').innerHTML = "Invalid ZIP code.";
-    return;
-  }
+        // Step 3: Get plan data
+        const plansRes = await fetch(`https://marketplace.api.healthcare.gov/api/v1/plans/zip/${zip}/2025.json`);
+        const plansData = await plansRes.json();
 
-  const state = county.state;
-  const fips = county.fips_code;
+        const plans = plansData.plans.slice(0, 5); // Show 5 plans
 
-  // Step 2: Get APTC estimate
-  const aptcRes = await fetch('https://marketplace.api.healthcare.gov/api/v1/aptc-estimate.json', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      household: {
-        state: state,
-        zip_code: zip,
-        county_fips_code: fips,
-        income: income,
-        members: [
-          { age: age, relationship: "self" }
-        ]
+        let output = `<h2>Estimated Monthly Savings: $${aptc.toFixed(2)}</h2>`;
+
+        plans.forEach(plan => {
+          const original = parseFloat(plan.individual_rate);
+          const afterSubsidy = Math.max(original - aptc, 0).toFixed(2);
+          output += `
+            <div class="plan">
+              <h2>${plan.marketing_name}</h2>
+              <p><strong>Carrier:</strong> ${plan.issuer_name}</p>
+              <p><strong>Metal Tier:</strong> ${plan.metal_level}</p>
+              <p><strong>Full Premium:</strong> $${original.toFixed(2)}</p>
+              <p><strong>After Subsidy:</strong> $${afterSubsidy}</p>
+            </div>
+          `;
+        });
+
+        resultsDiv.innerHTML = output;
+      } catch (error) {
+        resultsDiv.innerHTML = '<p>There was an error processing your request. Please try again later.</p>';
+        console.error(error);
       }
-    })
-  });
-
-  const aptcData = await aptcRes.json();
-  const aptc = aptcData.aptc_amount || 0;
-
-  // Step 3: Get plan data
-  const plansRes = await fetch(`https://marketplace.api.healthcare.gov/api/v1/plans/zip/${zip}/2025.json`);
-  const plansData = await plansRes.json();
-
-  const plans = plansData.plans.slice(0, 5); // Show 5 plans
-
-  let output = `<h3>Estimated Monthly Savings: $${aptc.toFixed(2)}</h3>`;
-
-  plans.forEach(plan => {
-    const original = parseFloat(plan.individual_rate);
-    const afterSubsidy = Math.max(original - aptc, 0).toFixed(2);
-    output += `
-      <div class="plan">
-        <strong>${plan.marketing_name}</strong><br>
-        Carrier: ${plan.issuer_name}<br>
-        Metal Tier: ${plan.metal_level}<br>
-        Full Premium: $${original.toFixed(2)}<br>
-        <strong>After Subsidy: $${afterSubsidy}</strong>
-      </div>
-    `;
-  });
-
-  document.getElementById('results').innerHTML = output;
-}
-</script>
-
+    });
+  </script>
 </body>
 </html>
+
