@@ -78,7 +78,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>Get Your Health Plan Estimate</h1>
+    <h1>Get Your Health Plan</h1>
     <form id="quote-form">
       <label for="zip">ZIP Code:</label>
       <input type="text" id="zip" name="zip" required>
@@ -92,68 +92,22 @@
       <label for="household">Household Size:</label>
       <input type="number" id="household" name="household" required>
 
-      <button type="submit">Get Estimate</button>
+      <button type="submit">See Plans</button>
     </form>
 
     <div class="results" id="results"></div>
   </div>
 
   <script>
-    document.getElementById('quote-form').addEventListener('submit', async function(e) {
+    document.getElementById('quote-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      const zip = document.getElementById('zip').value;
-      const age = parseInt(document.getElementById('age').value);
-      const income = parseInt(document.getElementById('income').value);
-      const household = parseInt(document.getElementById('household').value);
       const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = '<p>Loading...</p>';
-
-      try {
-        // Step 1: Get county info
-        const countyRes = await fetch(`https://marketplace.api.healthcare.gov/api/v1/counties.json?zip_code=${zip}`);
-        const countyData = await countyRes.json();
-        const county = countyData.counties[0];
-
-        if (!county) {
-          resultsDiv.innerHTML = '<p>Invalid ZIP code.</p>';
-          return;
-        }
-
-        const state = county.state;
-        const fips = county.fips_code;
-
-        // Step 2: Get APTC estimate
-        const aptcRes = await fetch('https://marketplace.api.healthcare.gov/api/v1/aptc-estimate.json', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            household: {
-              state: state,
-              zip_code: zip,
-              county_fips_code: fips,
-              income: income,
-              members: [
-                { age: age, relationship: "self" }
-              ]
-            }
-          })
-        });
-
-        const aptcData = await aptcRes.json();
-        const aptc = aptcData.aptc_amount || 0;
-
-        // Final output: APTC + HealthSherpa button
-        resultsDiv.innerHTML = `
-          <h2>Estimated Monthly Savings: $${aptc.toFixed(2)}</h2>
-          <p>This is your estimated ACA subsidy. Click below to view available plans.</p>
-          <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">View Plans on HealthSherpa</a>
-        `;
-      } catch (error) {
-        resultsDiv.innerHTML = '<p>There was an error processing your request. Please try again later.</p>';
-        console.error(error);
-      }
+      resultsDiv.innerHTML = `
+        <h2>You're all set!</h2>
+        <p>Click below to view your health plan options.</p>
+        <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">View Plans</a>
+      `;
     });
   </script>
 </body>
 </html>
-
