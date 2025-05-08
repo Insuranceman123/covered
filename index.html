@@ -31,7 +31,7 @@
       margin-bottom: 10px;
       font-weight: 600;
     }
-    input, select {
+    input {
       width: 100%;
       padding: 12px;
       margin-bottom: 20px;
@@ -54,20 +54,20 @@
     }
     .results {
       margin-top: 30px;
+      text-align: center;
     }
-    .plan {
-      border: 1px solid #CCCCCC;
+    .results a {
+      display: inline-block;
+      margin-top: 20px;
+      background-color: #FF6600;
+      color: white;
+      padding: 12px 20px;
+      text-decoration: none;
       border-radius: 4px;
-      padding: 20px;
-      margin-bottom: 20px;
-      background-color: #FAFAFA;
+      font-weight: bold;
     }
-    .plan h2 {
-      margin-top: 0;
-      color: #003366;
-    }
-    .plan p {
-      margin: 5px 0;
+    .results a:hover {
+      background-color: #e65c00;
     }
     @media (max-width: 600px) {
       .container {
@@ -94,6 +94,7 @@
 
       <button type="submit">Get Estimate</button>
     </form>
+
     <div class="results" id="results"></div>
   </div>
 
@@ -141,29 +142,12 @@
         const aptcData = await aptcRes.json();
         const aptc = aptcData.aptc_amount || 0;
 
-        // Step 3: Get plan data
-        const plansRes = await fetch(`https://marketplace.api.healthcare.gov/api/v1/plans/zip/${zip}/2025.json`);
-        const plansData = await plansRes.json();
-
-        const plans = plansData.plans.slice(0, 5); // Show 5 plans
-
-        let output = `<h2>Estimated Monthly Savings: $${aptc.toFixed(2)}</h2>`;
-
-        plans.forEach(plan => {
-          const original = parseFloat(plan.individual_rate);
-          const afterSubsidy = Math.max(original - aptc, 0).toFixed(2);
-          output += `
-            <div class="plan">
-              <h2>${plan.marketing_name}</h2>
-              <p><strong>Carrier:</strong> ${plan.issuer_name}</p>
-              <p><strong>Metal Tier:</strong> ${plan.metal_level}</p>
-              <p><strong>Full Premium:</strong> $${original.toFixed(2)}</p>
-              <p><strong>After Subsidy:</strong> $${afterSubsidy}</p>
-            </div>
-          `;
-        });
-
-        resultsDiv.innerHTML = output;
+        // Final output: APTC + HealthSherpa button
+        resultsDiv.innerHTML = `
+          <h2>Estimated Monthly Savings: $${aptc.toFixed(2)}</h2>
+          <p>This is your estimated ACA subsidy. Click below to view available plans.</p>
+          <a href="https://www.healthsherpa.com/?_agent_id=healthcareUSA" target="_blank">View Plans on HealthSherpa</a>
+        `;
       } catch (error) {
         resultsDiv.innerHTML = '<p>There was an error processing your request. Please try again later.</p>';
         console.error(error);
@@ -172,4 +156,5 @@
   </script>
 </body>
 </html>
+
 
